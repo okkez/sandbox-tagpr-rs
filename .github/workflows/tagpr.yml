@@ -30,6 +30,8 @@ jobs:
         run: cargo install cargo-edit
       - uses: Swatinem/rust-cache@v2
       - name: Run cargo set-version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -ex
           pr=$(echo '${{ needs.tagpr.outputs.pull_request }}' | jq -r .number)
