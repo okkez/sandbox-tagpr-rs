@@ -6,7 +6,7 @@ jobs:
   tagpr:
     runs-on: ubuntu-latest
     outputs:
-      tagpr_tag: steps.tagpr.outputs.tag
+      tagpr_tag: ${{ steps.tagpr.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
       - uses: Songmu/tagpr@v1
@@ -49,6 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - tagpr
+      - update-version
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/release
