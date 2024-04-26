@@ -1,0 +1,18 @@
+name: release
+
+inputs:
+  tag:
+    description: tag
+    require: true
+  token:
+    description: GitHub token
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+    - name: release from actions
+      run: |
+        echo "release from actions"
+      shell: bash

@@ -1,0 +1,20 @@
+changelog:
+  exclude:
+    labels:
+      - tagpr
+  categories:
+    - title: Breaking changes
+      labels:
+        - breaking-change
+    - title: New features
+      labels:
+        - feat
+    - title: Bug fixes
+      labels:
+        - fix
+    - title: Dependencies
+      labels:
+        - dependencies
+    - title: Other changes
+      labels:
+        - "*"
