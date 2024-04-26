@@ -5,6 +5,8 @@ on:
 jobs:
   tagpr:
     runs-on: ubuntu-latest
+    outputs:
+      - tagpr_tag: steps.tagpr.outputs.tag
     steps:
     - uses: actions/checkout@v4
     - uses: Songmu/tagpr@v1
@@ -13,8 +15,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: echo
       run: echo ${{ steps.tagpr.outputs.tag }}
+
+  build-and-upload:
     - uses: ./.github/actions/release
       with:
         tag: ${{ steps.tagpr.outputs.tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
-      if: "steps.tagpr.outputs.tag != ''"
+      if: "jobs.tagpr.outputs.tagpr_tag != ''"
