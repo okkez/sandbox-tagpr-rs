@@ -9,6 +9,11 @@ jobs:
       tagpr_tag: steps.tagpr.outputs.tag
     steps:
       - uses: actions/checkout@v4
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
+      - uses: Swatinem/rust-cache@v2
       - uses: Songmu/tagpr@v1
         id: tagpr
         env:
