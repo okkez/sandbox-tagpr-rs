@@ -37,8 +37,8 @@ jobs:
           pr=$(echo '${{ needs.tagpr.outputs.pull_request }}' | jq -r .number)
           json=$(gh pr view ${pr} --json headRefName,title)
           head_ref_name=$(echo ${json} | jq -r .headRefName)
-          current_version_tag=$(echo ${head_ref_name} | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+"
-          next_version_tag=$(echo $(echo ${json} | jq -r .title) | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+"
+          current_version_tag=$(echo ${head_ref_name} | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
+          next_version_tag=$(echo $(echo ${json} | jq -r .title) | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
           next_version=$(echo ${next_version_tag} | sed -e "s/v//")
           if [ $(yq e ".package.version" Cargo.toml) != "${next_version}" ]; then
             git switch ${head_ref_name}
