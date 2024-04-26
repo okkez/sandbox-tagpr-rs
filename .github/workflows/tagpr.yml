@@ -9,11 +9,6 @@ jobs:
       tagpr_tag: steps.tagpr.outputs.tag
     steps:
       - uses: actions/checkout@v4
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-edit
-        run: cargo install cargo-edit
-      - uses: Swatinem/rust-cache@v2
       - uses: Songmu/tagpr@v1
         id: tagpr
         env:
@@ -21,7 +16,36 @@ jobs:
       - name: echo
         run: echo ${{ steps.tagpr.outputs.tag }}
 
+  update-version:
+    if: "needs.tagpr.outputs.tagpr_tag != ''"
+    runs-on: ubuntu-latest
+    needs:
+      - tagpr
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
+      - uses: Swatinem/rust-cache@v2
+      - name: Run cargo set-version
+        run: |
+          set -ex
+          tag=${{ steps.tagpr.outputs.tag }}
+          version=$(echo ${tag} | sed -e "s/v//")
+          if [ $(yq e ".package.version" Cargo.toml) != "${version}" ]; then
+            cargo set-version ${version}
+            git config --local user.email github-actions[bot]@users.noreply.github.com
+            git config --local user.name github-actions[bot]
+            git diff
+            git add Cargo.toml
+            git commit -m "tagpr: Update version"
+          else
+            echo "Skipped"
+          fi
+
   build-and-upload:
+    if: "needs.tagpr.outputs.tagpr_tag != ''"
     runs-on: ubuntu-latest
     needs:
       - tagpr
@@ -31,4 +55,3 @@ jobs:
         with:
           tag: ${{ steps.tagpr.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
-        if: "needs.tagpr.outputs.tagpr_tag != ''"
