@@ -4,4 +4,4 @@
     changelog = true
     release = true
     versionFile = -
-    command = echo C=${TAGPR_CURRENT_VERSION} N=${TAGPR_NEXT_VERSION}
+    command = cargo set-version ${TAGPR_NEXT_VERSION}
