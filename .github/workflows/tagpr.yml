@@ -21,6 +21,7 @@ jobs:
     needs:
       - tagpr
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/release
         with:
           tag: ${{ steps.tagpr.outputs.tag }}
