@@ -4,4 +4,3 @@
     changelog = true
     release = true
     versionFile = -
-    command = cargo set-version ${TAGPR_NEXT_VERSION}
