@@ -31,7 +31,7 @@ jobs:
       - name: Run cargo set-version
         run: |
           set -ex
-          tag=${{ needs.tagpr.outputs.tag }}
+          tag=${{ needs.tagpr.outputs.tagpr_tag }}
           version=$(echo ${tag} | sed -e "s/v//")
           if [ $(yq e ".package.version" Cargo.toml) != "${version}" ]; then
             cargo set-version ${version}
