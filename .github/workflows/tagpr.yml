@@ -17,41 +17,59 @@ jobs:
       - name: echo
         run: echo ${{ steps.tagpr.outputs.tag }}
 
-  update-version:
-    if: "needs.tagpr.outputs.tag == ''"
-    runs-on: ubuntu-latest
-    needs:
-      - tagpr
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install cargo-edit
-        run: cargo install cargo-edit
-      - uses: Swatinem/rust-cache@v2
-      - name: Run cargo set-version
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -ex
-          pr=$(echo '${{ needs.tagpr.outputs.pull_request }}' | jq -r .number)
-          json=$(gh pr view ${pr} --json headRefName,title)
-          head_ref_name=$(echo ${json} | jq -r .headRefName)
-          current_version_tag=$(echo ${head_ref_name} | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
-          next_version_tag=$(echo $(echo ${json} | jq -r .title) | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
-          next_version=$(echo ${next_version_tag} | sed -e "s/v//")
-          if [ $(yq e ".package.version" Cargo.toml) != "${next_version}" ]; then
-            git switch ${head_ref_name}
-            cargo set-version ${next_version}
-            git config --local user.email github-actions[bot]@users.noreply.github.com
-            git config --local user.name github-actions[bot]
-            git diff
-            git add Cargo.toml
-            git commit -m "tagpr: Update version"
-            git push origin ${head_ref_name}
-          else
-            echo "Skipped"
-          fi
+  # update-version:
+  #   if: "needs.tagpr.outputs.tag == ''"
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - tagpr
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Install stable toolchain
+  #       uses: dtolnay/rust-toolchain@stable
+  #     - uses: taiki-e/install-action@v2
+  #       with:
+  #         tool: cargo-release
+  #     - uses: Swatinem/rust-cache@v2
+  #     - name: Update version
+  #       run: |
+  #         set -ex
+  #         pr=$(echo '${{ needs.tagpr.outputs.pull_request }}' | jq -r .number)
+  #         json=$(gh pr view ${pr} --json headRefName,title)
+  #         head_ref_name=$(echo ${json} | jq -r .headRefName)
+  #         current_version_tag=$(echo ${head_ref_name} | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
+  #         next_version_tag=$(echo $(echo ${json} | jq -r .title) | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
+  #         next_version=$(echo ${next_version_tag} | sed -e "s/v//")
+  #         git switch ${head_ref_name}
+  #         if [ $(yq e ".packagge.version" Cargo.toml) != "${next_version}" ]; then
+  #           cargo release version --execute --no-confirm ${new_version}
+  #           cargo release commit --execute --no-confirm
+  #           cargo release push --no-tag --execute --no-confirm
+  #         else
+  #           echo Skipped
+  #         fi
+      # - name: Run cargo set-version
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     set -ex
+      #     pr=$(echo '${{ needs.tagpr.outputs.pull_request }}' | jq -r .number)
+      #     json=$(gh pr view ${pr} --json headRefName,title)
+      #     head_ref_name=$(echo ${json} | jq -r .headRefName)
+      #     current_version_tag=$(echo ${head_ref_name} | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
+      #     next_version_tag=$(echo $(echo ${json} | jq -r .title) | grep --only-matching -E "v[0-9]+\.[0-9]+\.[0-9]+")
+      #     next_version=$(echo ${next_version_tag} | sed -e "s/v//")
+      #     if [ $(yq e ".package.version" Cargo.toml) != "${next_version}" ]; then
+      #       git switch ${head_ref_name}
+      #       cargo set-version ${next_version}
+      #       git config --local user.email github-actions[bot]@users.noreply.github.com
+      #       git config --local user.name github-actions[bot]
+      #       git diff
+      #       git add Cargo.toml
+      #       git commit -m "tagpr: Update version"
+      #       git push origin ${head_ref_name}
+      #     else
+      #       echo "Skipped"
+      #     fi
 
   build-and-upload:
     if: "needs.tagpr.outputs.tagpr_tag != ''"
