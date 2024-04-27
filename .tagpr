@@ -3,4 +3,4 @@
     releaseBranch = main
     changelog = true
     release = true
-    versionFile = -
+    versionFile = Cargo.toml
